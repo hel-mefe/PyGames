@@ -1,4 +1,3 @@
-from tkinter.tix import CELL
 import pygame, sys, random
 from pygame.math import Vector2
 
@@ -13,11 +12,12 @@ class Fruit:
     
     def draw_fruit(self):
         fruit_rect = pygame.Rect(int(self.pos.x) * CELL_SIZE, int(self.pos.y) * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-        pygame.draw.rect(screen, (126, 166, 114), fruit_rect)
+        screen.blit(apple, fruit_rect)
+        # pygame.draw.rect(screen, (126, 166, 114), fruit_rect)
 
 class Snake:
     def __init__(self):
-        self.body = [Vector2(5, 10), Vector2(6, 10), Vector2(7, 10)]
+        self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
 
@@ -42,7 +42,6 @@ class Snake:
     def add_block(self):
         self.new_block = True
 
-
 class Main:
     def __init__(self):
         self.snake = Snake()
@@ -66,11 +65,25 @@ class Main:
             self.randomize()
             self.snake.add_block()
 
+    def check_fail(self):        
+        if not(0 <= self.snake.body[0].x < CELL_NUMBER) or not(0 <= self.snake.body[0].y < CELL_NUMBER):
+            self.game_over()
+        # for block in self.snake.body[1:]:
+        #     if (block == self.snake.body[0]):
+        #         self.game_over()
+    
+    def game_over(self):
+        pygame.quit()
+        sys.exit()
+
 WIDTH = CELL_SIZE * CELL_NUMBER
 HEIGHT = WIDTH
+BACKGROUND_COLOR = (175, 215, 70)
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+apple = pygame.image.load('Graphics/apple.png').convert_alpha()
+apple = pygame.transform.scale(apple, (CELL_SIZE, CELL_SIZE))
 FPS = 60
 running = True
 test_surface = pygame.Surface((100, 200))
@@ -90,12 +103,17 @@ while running:
         if (event.type == pygame.KEYDOWN):
             if (event.key == pygame.K_UP and game.snake.direction.y != 1):
                 game.snake.direction = Vector2(0, -1)
-            if (event.key == pygame.K_DOWN and game.snake.direction.y != -1):
+                game.draw_elements()
+            elif (event.key == pygame.K_DOWN and game.snake.direction.y != -1):
                 game.snake.direction = Vector2(0, 1)
+                game.draw_elements()
             if (event.key == pygame.K_RIGHT and game.snake.direction.x != -1):
                 game.snake.direction = Vector2(1, 0)
-            if (event.key == pygame.K_LEFT and game.snake.direction.x != 1):
+                game.draw_elements()
+            elif (event.key == pygame.K_LEFT and game.snake.direction.x != 1):
                 game.snake.direction = Vector2(-1, 0)
-    screen.fill((175, 215, 70))
+                game.draw_elements()
+    screen.fill(BACKGROUND_COLOR)
     game.draw_elements()
+    game.check_fail()
     pygame.display.update()
